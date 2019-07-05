@@ -1,0 +1,27 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.705
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{11A8DD76-328B-46DF-9F39-F559912D0360}") = "ILI9341Driver", "ILI9341Driver\ILI9341Driver.nfproj", "{3E1A0F77-E0A5-4779-8A06-4B636FC9F7BA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3E1A0F77-E0A5-4779-8A06-4B636FC9F7BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E1A0F77-E0A5-4779-8A06-4B636FC9F7BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E1A0F77-E0A5-4779-8A06-4B636FC9F7BA}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{3E1A0F77-E0A5-4779-8A06-4B636FC9F7BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E1A0F77-E0A5-4779-8A06-4B636FC9F7BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3E1A0F77-E0A5-4779-8A06-4B636FC9F7BA}.Release|Any CPU.Deploy.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0630371D-717E-4F85-957A-61E68824AD78}
+	EndGlobalSection
+EndGlobal
