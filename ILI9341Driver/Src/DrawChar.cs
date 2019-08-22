@@ -4,7 +4,7 @@ namespace ILI9341Driver
 {
     public partial class ILI9341
     {
-        public void DrawChar(int x, int y, int color, FontCharacter character, bool isDebug = false)
+        public void DrawChar(int x, int y, ushort color, FontCharacter character, bool isDebug = false)
         {
             lock (this)
             {
