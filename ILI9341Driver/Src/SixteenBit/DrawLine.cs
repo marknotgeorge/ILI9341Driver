@@ -1,6 +1,6 @@
-﻿namespace ILI9341Driver
+﻿namespace Ili9341Driver
 {
-    public partial class ILI9341
+    public partial class Ili9341SixteenBit
     {
         public void DrawLine(int x0, int y0, int x1, int y1, ushort color)
         {
@@ -36,7 +36,7 @@
                 // same, we have a single pixel.
                 if ((x0 == x1) && (y0 == y1))
                 {
-                    SetPixel(x0, y0, color);
+                    DrawPixel(x0, y0, color);
                     return;
                 }
 
@@ -66,7 +66,7 @@
                 {
                     // Calculate y
                     y = (m * x) + c;
-                    SetPixel(x, (int)y, color);
+                    DrawPixel(x, (int)y, color);
                 }
             }
         }

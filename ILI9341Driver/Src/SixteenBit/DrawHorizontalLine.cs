@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace ILI9341Driver
+namespace Ili9341Driver
 {
-    public partial class ILI9341
+    public partial class Ili9341SixteenBit
     {
         public void DrawHorizontalLine(int x, int y, int length, ushort color)
         {

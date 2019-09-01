@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Threading;
-using ILI9341Driver;
+using Ili9341Driver;
 using nanoFramework.Hardware.Esp32;
 using Windows.Devices.Gpio;
 
-namespace nanoIli9341.Sample
+namespace SixteenBitSample
 {
     public class Program
     {
@@ -23,7 +23,7 @@ namespace nanoIli9341.Sample
             var resetPin = gpioController.OpenPin(13);
             //var backlightPin = gpioController.OpenPin(32);
 
-            var tft = new ILI9341(
+            var tft = new Ili9341SixteenBit(
                 rotation: Orientations.Portrait,
                 chipSelectPin: chipSelectPin,
                 dataCommandPin: dataCommandPin,
@@ -32,31 +32,36 @@ namespace nanoIli9341.Sample
                 /*backlightPin: backlightPin*/);
 
 
-            var result = testFillScreen(tft) / 10000;
-            Console.WriteLine($"Screen fill test: {result}ms");
-            Thread.Sleep(500);
+            var result = TestFillScreen(tft) / 10000;
+            Console.WriteLine($"Screen fill test: {result}ms");            
 
-            result = testText(tft) / 10000;
+            result = TestText(tft) / 10000;
             Console.WriteLine($"Text test: {result}ms");
 
-            
+            result = TestColor(tft) / 10000;
+            Console.WriteLine($"Color test: {result}ms");
         
             Thread.Sleep(Timeout.Infinite);            
-        }        
+        }
 
-        private static long testText(ILI9341 tft)
+        private static void TestFill(Ili9341SixteenBit tft, ushort color)
+        {
+            tft.FillScreen((ushort)color);
+        }
+
+        private static long TestText(Ili9341SixteenBit tft)
         {
             var start = DateTime.UtcNow.Ticks;
-            tft.FillScreen((ushort)Ili9341Colors.Black);
+            tft.FillScreen((ushort)Colors565.Black);
             tft.SetCursor(0, 0);
-            tft.TextColor = (ushort)Ili9341Colors.White;
+            tft.TextColor = (ushort)Colors565.White;
             tft.WriteLine("Hello World!");
-            tft.TextColor = (ushort)Ili9341Colors.Magenta;
+            tft.TextColor = (ushort)Colors565.Magenta;
             tft.WriteLine(1234.56);
-            tft.TextColor = (ushort)Ili9341Colors.Red;
+            tft.TextColor = (ushort)Colors565.Red;
             tft.WriteLine(0xDEADBEEF);
             tft.WriteLine();
-            tft.TextColor = (ushort)Ili9341Colors.Green;
+            tft.TextColor = (ushort)Colors565.Green;
             tft.WriteLine("A wizard's staff has a knob on the end");
             tft.WriteLine("And runes run up the shaft");
             tft.WriteLine("It's long and proud and stiff and loud");
@@ -66,24 +71,73 @@ namespace nanoIli9341.Sample
             return finish - start;
         }
 
-        private static long testFillScreen(ILI9341 tft)
+        private static long TestFillScreen(Ili9341SixteenBit tft)
         {
             var start = DateTime.UtcNow.Ticks;
 
-            tft.FillScreen((ushort)Ili9341Colors.Black);
+            tft.FillScreen((ushort)Colors565.Black);
             Thread.Sleep(50);
-            tft.FillScreen((ushort)Ili9341Colors.Red);
+            tft.FillScreen((ushort)Colors565.Red);
             Thread.Sleep(50);
-            tft.FillScreen((ushort)Ili9341Colors.Green);
+            tft.FillScreen((ushort)Colors565.Green);
             Thread.Sleep(50);
-            tft.FillScreen((ushort)Ili9341Colors.Blue);
+            tft.FillScreen((ushort)Colors565.Blue);
             Thread.Sleep(50);
-            tft.FillScreen((ushort)Ili9341Colors.Black);
+            tft.FillScreen((ushort)Colors565.Black);
             Thread.Sleep(50);
 
             var finish = DateTime.UtcNow.Ticks;
 
             return finish - start;
         }
+
+        private static long TestColor(Ili9341SixteenBit tft)
+        {
+            var start = DateTime.UtcNow.Ticks;
+
+            tft.FillScreen((ushort)Colors565.Black);
+            tft.SetCursor(0, 0);
+            tft.TextColor = (ushort)Colors565.Navy;
+            tft.WriteLine("Navy");
+            tft.TextColor = (ushort)Colors565.Blue;
+            tft.WriteLine("Blue");
+            tft.TextColor = (ushort)Colors565.DarkGreen;
+            tft.WriteLine("Dark Green");
+            tft.TextColor = (ushort)Colors565.DarkCyan;
+            tft.WriteLine("Dark Cyan");
+            tft.TextColor = (ushort)Colors565.Green;
+            tft.WriteLine("Green");
+            tft.TextColor = (ushort)Colors565.Cyan;
+            tft.WriteLine("Cyan");
+            tft.TextColor = (ushort)Colors565.Maroon;
+            tft.WriteLine("Maroon");
+            tft.TextColor = (ushort)Colors565.Purple;
+            tft.WriteLine("Purple");
+            tft.TextColor = (ushort)Colors565.Olive;
+            tft.WriteLine("Olive");
+            tft.TextColor = (ushort)Colors565.DarkGrey;
+            tft.WriteLine("Dark Grey");
+            tft.TextColor = (ushort)Colors565.GreenYellow;
+            tft.WriteLine("GreenYellow");
+            tft.TextColor = (ushort)Colors565.LightGrey;
+            tft.WriteLine("Light Grey");
+            tft.TextColor = (ushort)Colors565.Red;
+            tft.WriteLine("Red");
+            tft.TextColor = (ushort)Colors565.Magenta;
+            tft.WriteLine("Magenta");
+            tft.TextColor = (ushort)Colors565.Pink;
+            tft.WriteLine("Pink");
+            tft.TextColor = (ushort)Colors565.Orange;
+            tft.WriteLine("Orange");
+            tft.TextColor = (ushort)Colors565.Yellow;
+            tft.WriteLine("Yellow");
+            tft.TextColor = (ushort)Colors565.White;            
+            tft.WriteLine("White");
+
+            var finish = DateTime.UtcNow.Ticks;
+            return finish - start;
+        }
+
+
     }
 }

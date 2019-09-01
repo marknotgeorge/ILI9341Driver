@@ -5,7 +5,7 @@ using Windows.Devices.Spi;
 
 namespace ILI9341Driver
 {
-    public partial class ILI9341
+    public partial class Ili9341EighteenBit
     {
         // Any faster than 33MHz causes an exception
         const int MaxSPIFrequency = 33000000;
@@ -81,9 +81,9 @@ namespace ILI9341Driver
             set { _cursorY = value; }
         }
 
-        private ushort _textColor;
+        private UInt32 _textColor;
 
-        public ushort TextColor
+        public UInt32 TextColor
         {
             get { return _textColor; }
             set { _textColor = value; }
@@ -105,16 +105,30 @@ namespace ILI9341Driver
             set { _textWrap = value; }
         }
 
+        private int _dataBitLength;
+        public int DataBitLength
+        {
+            get
+            {
+                return _dataBitLength;
+            }
+            set
+            {
+                _dataBitLength = value;
+                _spi.ConnectionSettings.DataBitLength = value;                
+            }
+        }
+
 
         #region Constructors
 
-        public ILI9341(
+        public Ili9341EighteenBit(
             GpioPin chipSelectPin = null,
             GpioPin dataCommandPin = null,
             GpioPin resetPin = null,
             GpioPin backlightPin = null,            
             int spiClockFrequency = MaxSPIFrequency,
-            SpiMode spiMode = SpiMode.Mode3,
+            SpiMode spiMode = SpiMode.Mode0,
             string spiBus = "SPI1",
             Orientations rotation = Orientations.Landscape,
             byte[] orientationFlags = null,
@@ -156,10 +170,10 @@ namespace ILI9341Driver
             {
                 _orientationFlags = new byte[]
                 {
-                    (byte)(MemoryAccessControl.MX | MemoryAccessControl.BGR),
-                    (byte)(MemoryAccessControl.MV | MemoryAccessControl.BGR),
-                    (byte)(MemoryAccessControl.MY | MemoryAccessControl.ML | MemoryAccessControl.BGR),
-                    (byte)(MemoryAccessControl.ML | MemoryAccessControl.MV | MemoryAccessControl.MX | MemoryAccessControl.MY | MemoryAccessControl.BGR)
+                    (byte)MemoryAccessControl.MX,
+                    (byte)MemoryAccessControl.MV,
+                    (byte)(MemoryAccessControl.MY | MemoryAccessControl.ML),
+                    (byte)(MemoryAccessControl.ML | MemoryAccessControl.MV | MemoryAccessControl.MX | MemoryAccessControl.MY)
                 };
             }
             else if (orientationFlags.Length == 4)
@@ -179,9 +193,9 @@ namespace ILI9341Driver
 
             var connectionSettings = new SpiConnectionSettings(chipSelectPin.PinNumber)
             {
-                DataBitLength = 8,
+                DataBitLength = DataBitLength,
                 ClockFrequency = spiClockFrequency,
-                Mode = spiMode
+                Mode = spiMode,                
             };
 
             _spi = SpiDevice.FromId(spiBus, connectionSettings);
@@ -214,13 +228,7 @@ namespace ILI9341Driver
         {
             _dataCommandPin.Write(GpioPinValue.High);
             WriteData(data);
-        }
-
-        protected virtual void SendData(params ushort[] data)
-        {
-            _dataCommandPin.Write(GpioPinValue.High);
-            WriteData(data);
-        }
+        }        
 
         protected virtual void WriteReset(GpioPinValue value)
         {
@@ -236,69 +244,21 @@ namespace ILI9341Driver
 
         #endregion Communication Methods
 
-        #region Public Methods
-
-        /// <summary>
-        /// Fills the area of the screen described by <paramref name="left"/> <paramref name="right"/> <paramref name="top"/> & <paramref name="bottom"/> with <paramref name="bottom"/>
-        /// </summary>
-        /// <param name="left">The left side of the area</param>
-        /// <param name="right">The right side of the area</param>
-        /// <param name="top">The top of the area</param>
-        /// <param name="bottom">The bottom of the area</param>
-        /// <param name="color">The color in 16-bit (565) format</param>
-        public void FillScreen(int left, int right, int top, int bottom, ushort color)
-        {
-            lock (this)
-            {
-                SetWindow(left, right, top, bottom);
-
-                var buffer = new ushort[Width];
-
-                if (color != 0)
-                {
-                    for (var i = 0; i < Width; i++)
-                    {
-                        buffer[i] = color;
-                    }
-                }
-
-                for (int y = 0; y < Height; y++)
-                {
-                    SendData(buffer);
-                }
-
-            }
-        }
-
-        public void FillScreen(ushort color)
-        {
-            FillScreen(0, Width - 1, 0, Height - 1, color);
-        }
-
-
-        /// <summary>
-        /// Clears the screen
-        /// </summary>
-        public void ClearScreen()
-        {
-            lock (this)
-            {
-                FillScreen(0, Width - 1, 0, Height - 1, 0);
-            }
-        }
+        #region Public Methods        
 
         /// <summary>
         /// Sets a pixel to <paramref name="color"/>
         /// </summary>
         /// <param name="x">The x (horizontal) coordinate</param>
         /// <param name="y">The y (vertical) coordinate</param>
-        /// <param name="color">The color in 16-bit (565) format</param>
-        public void SetPixel(int x, int y, ushort color)
+        /// <param name="color">The color in 18-bit (666) format</param>
+        public void SetPixel(int x, int y, UInt32 color)
         {
             lock (this)
             {
                 SetWindow(x, x, y, y);
-                SendData(color);
+                
+                SendData(ColorHelper.HexTo666ByteArray(color));
             }
         }
 
@@ -334,12 +294,12 @@ namespace ILI9341Driver
 
         }
 
-        public void ScrollUp(int pixels)
+        public void ScrollUp(uint pixels)
         {
             lock (this)
             {
                 SendCommand(Commands.VerticalScrollingStartAddress);
-                SendData((ushort)pixels);
+                SendData(Int32ToByteArray(pixels));
 
                 SendCommand(Commands.MemoryWrite);
             }
@@ -352,6 +312,18 @@ namespace ILI9341Driver
         }
 
         #endregion Public Methods
+
+        private byte[] Int32ToByteArray(uint number)
+        {
+            var bytes = new byte[4];
+
+            bytes[0] = (byte)((number >> 24) & 0xFF);
+            bytes[1] = (byte)((number >> 16) & 0xFF);
+            bytes[2] = (byte)((number >> 8) & 0xFF);
+            bytes[3] = (byte)(number & 0xFF);
+
+            return bytes;
+        }
 
 
 
@@ -367,11 +339,11 @@ namespace ILI9341Driver
                 SendCommand(Commands.DisplayOff);
 
                 SendCommand(Commands.MemoryAccessControl);
-                var initializeMAC = (MemoryAccessControl.BGR | MemoryAccessControl.MX);
+                var initializeMAC = MemoryAccessControl.MX;
                 SendData((byte)initializeMAC);
 
                 SendCommand(Commands.PixelFormatSet);
-                SendData((byte)PixelFormat.SixteenBit);//16-bits per pixel
+                SendData((byte)PixelFormat.EighteenBit); //18-bits per pixel
 
                 SendCommand(Commands.FrameControlNormal);
                 SendData(0x00, 0x1B);

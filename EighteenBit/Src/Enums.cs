@@ -26,9 +26,8 @@ namespace ILI9341Driver
     public enum PixelFormat : byte
     {
         SixteenBit = 0x55,
-        TwentyFourBit = 0x66
+        EighteenBit = 0x66
     }
-
 
     // Color definitions
     public enum Ili9341Colors : ushort
@@ -53,4 +52,7 @@ namespace ILI9341Driver
         Yellow = 0xFFE0, // 255, 255,   0
         White = 0xFFFF // 255, 255, 255    
     }
+
+
 }
+
